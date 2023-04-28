@@ -5,25 +5,25 @@ import mel_parser
 def main():
     prog = '''
         void myFunc(int[] a, boolean b) {
-        
+            for s As int = 3 To 5 
+            Dim s As int = 3
+            Dim s As int = 3
+            Dim s As int = 3
+            Next s
+            
             if (a>5) then
-                Dim a = 14 As int
+                Dim s As int = 3
             else 
-                Dim a = 47 As int
+                Dim s As int = 3
             end if  
             
             while (a>5) 
-                Dim a = 14 As int
+                Dim s As int = 3
             end while                 
             
             do while (a>5) 
-                Dim a = 14 As int
+                Dim s As int = 3
             Loop
-        
-                    
-            for a As int = 1 To 2
-            Dim a = 14 As int
-            Next
         }
     
     '''

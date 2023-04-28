@@ -247,15 +247,16 @@ class CallNode(StmtNode):
 
 
 class AssignNode(StmtNode):
-    def __init__(self, var: IdentNode, val: ExprNode,
+    def __init__(self, ident: IdentNode, var: VarType, val: ExprNode,
                  row: Optional[int] = None, line: Optional[int] = None, **props):
         super().__init__(row=row, line=line, **props)
+        self.ident = ident
         self.var = var
         self.val = val
 
     @property
-    def childs(self) -> Tuple[IdentNode, ExprNode]:
-        return self.var, self.val
+    def childs(self) -> tuple[IdentNode, VarType, ExprNode]:
+        return self.ident, self.var, self.val
 
     def __str__(self) -> str:
         return '='
@@ -293,18 +294,16 @@ class IfNode(StmtNode):
 
 
 class ForNode(StmtNode):
-    def __init__(self, init: Union[StmtNode, None], cond: Union[ExprNode, StmtNode, None],
-                 step: Union[StmtNode, None], body: Union[StmtNode, None] = None,
+    def __init__(self, cond: StmtNode, expr: ExprNode, then_stmt: StmtNode,
                  row: Optional[int] = None, line: Optional[int] = None, **props):
         super().__init__(row=row, line=line, **props)
-        self.init = init if init else _empty
-        self.cond = cond if cond else _empty
-        self.step = step if step else _empty
-        self.body = body if body else _empty
+        self.cond = cond
+        self.expr = expr
+        self.then_stmt = then_stmt
 
     @property
-    def childs(self) -> Tuple[AstNode, ...]:
-        return self.init, self.cond, self.step, self.body
+    def childs(self) -> tuple[StmtNode, ExprNode, StmtNode]:
+        return self.cond, self.expr, self.then_stmt
 
     def __str__(self) -> str:
         return 'for'

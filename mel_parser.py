@@ -87,16 +87,16 @@ parser = Lark('''
     
     ?expr_list: "{" expr ( "," expr )* "}"
 
-    ?var_decl_inner: ident | ident "=" expr  -> assign
+    ?var_decl_inner: ident | ident "As" simple_type "=" expr  -> assign
         
-    ?var_array_decl_inner: ident | ident "=" expr_list  -> assign
+    ?var_array_decl_inner: ident | ident "As" simple_type "=" expr_list  -> assign
     
     ?vars_decl: (simple_type |delegate) var_decl_inner ( "," var_decl_inner )* 
         | type var_array_decl_inner ( "," var_array_decl_inner )*
     
     ?vars_decl_list: (vars_decl ";")* 
 
-    ?simple_stmt: "Dim" complex_ident "=" expr "As" simple_type -> assign
+    ?simple_stmt: ident "As" simple_type "=" expr -> assign
         | call
 
     ?for_stmt_list: vars_decl
@@ -107,9 +107,9 @@ parser = Lark('''
         |   -> stmt_list
     
     ?stmt: vars_decl 
-        | simple_stmt 
+        | "Dim" simple_stmt 
         | "if" "(" expr ")" "then" stmt_list ("else" stmt_list)? "end if" -> if
-        | "for" complex_ident "As" simple_type "=" expr "To" expr for_body "Next" -> for
+        | "for" simple_stmt "To" expr  stmt_list "Next" ident-> for
         | "while" "(" expr ")" ("AndAlso" "(" expr ")")? stmt "end while"-> while
         | "do" "while" "(" expr ")" stmt_list "Loop"-> do_while
         | "{" stmt_list "}"
@@ -126,6 +126,7 @@ parser = Lark('''
 
     ?start: prog
 ''', start='start')  # , parser='lalr')
+
 
 
 class MelASTBuilder(InlineTransformer):
