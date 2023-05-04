@@ -34,7 +34,7 @@ parser = Lark('''
     bool: (TRUE|FALSE)  -> literal
     simple_type: INT | CHAR | STRING | BOOLEAN | DOUBLE
     array_type: simple_type "[" "]"
-    type: simple_type | array_type | delegate
+    type: simple_type | array_type
     ident: CNAME
     ?complex_ident: ident | ident"[" expr "]"
 
@@ -58,7 +58,6 @@ parser = Lark('''
     
     type_list: (type ("," type)*)?
     
-    ?delegate: "delegate" "<" type_list ":" func_return_type ">"
     
     ?group: num | char| str | bool
         | complex_ident
@@ -84,45 +83,26 @@ parser = Lark('''
         | logical_or OR logical_and  -> bin_op
 
     ?expr: logical_or
-    
-    ?expr_list: "{" expr ( "," expr )* "}"
 
-    ?var_decl_inner: ident | ident "As" simple_type "=" expr  -> assign
-        
-    ?var_array_decl_inner: ident | ident "As" simple_type "=" expr_list  -> assign
-    
-    ?vars_decl: (simple_type |delegate) var_decl_inner ( "," var_decl_inner )* 
-        | type var_array_decl_inner ( "," var_array_decl_inner )*
-    
-    ?vars_decl_list: (vars_decl ";")* 
+    ?vars_assign: ident
+       | ident "As" simple_type "=" expr
 
-    ?simple_stmt: ident "As" simple_type "=" expr -> assign
+
+    ?simple_stmt: ident "=" expr -> assign
         | call
 
-    ?for_stmt_list: vars_decl
-        | ( simple_stmt ( "," simple_stmt )* )?  -> stmt_list
-    ?for_cond: expr
-        |   -> stmt_list
-    ?for_body: stmt
-        |   -> stmt_list
-    
-    ?stmt: vars_decl 
+
+    ?stmt: "Dim" vars_assign
         | "Dim" simple_stmt 
         | "if" "(" expr ")" "then" stmt_list ("else" stmt_list)? "end if" -> if
         | "for" simple_stmt "To" expr  stmt_list "Next" ident-> for
         | "while" "(" expr ")" ("AndAlso" "(" expr ")")? stmt "end while"-> while
         | "do" "while" "(" expr ")" stmt_list "Loop"-> do_while
-        | "{" stmt_list "}"
 
     stmt_list: ( stmt )*
     
-    ?func_var: type ident
-    ?func_vars_list: (func_var ("," func_var)*)?
     
-    func_return_type: type | VOID   
-    func: func_return_type ident "(" func_vars_list ")" "{" stmt_list "}"
-    
-    ?prog: (func | vars_decl_list)*
+    ?prog: stmt_list
 
     ?start: prog
 ''', start='start')  # , parser='lalr')

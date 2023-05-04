@@ -200,34 +200,20 @@ class StmtNode(ExprNode):
     pass
 
 
-class VarsDeclNode(StmtNode):
-    def __init__(self, vars_type: TypeNode, *vars_list: Tuple[AstNode, ...],
+class VarsAssignNode(StmtNode):
+    def __init__(self, ident: IdentNode, var: VarType, val: ExprNode,
                  row: Optional[int] = None, line: Optional[int] = None, **props):
         super().__init__(row=row, line=line, **props)
-        self.vars_type = vars_type
-        self.vars_list = vars_list
+        self.ident = ident
+        self.var = var
+        self.val = val
 
     @property
-    def childs(self) -> Tuple[ExprNode, ...]:
-        # return self.vars_type, (*self.vars_list)
-        return (self.vars_type,) + self.vars_list
+    def childs(self) -> tuple[IdentNode, VarType, ExprNode]:
+        return self.ident, self.var, self.val
 
     def __str__(self) -> str:
-        return 'var'
-
-
-class VarsDeclListNode(StmtNode):
-    def __init__(self, *vars_decl: VarsDeclNode,
-                 row: Optional[int] = None, line: Optional[int] = None, **props):
-        super().__init__(row=row, line=line, **props)
-        self.vars_decl = vars_decl
-
-    @property
-    def childs(self) -> Tuple[VarsDeclNode, ...]:
-        return self.vars_decl
-
-    def __str__(self) -> str:
-        return 'vars_list'
+        return '='
 
 
 class CallNode(StmtNode):
@@ -247,16 +233,15 @@ class CallNode(StmtNode):
 
 
 class AssignNode(StmtNode):
-    def __init__(self, ident: IdentNode, var: VarType, val: ExprNode,
+    def __init__(self, var: IdentNode, val: ExprNode,
                  row: Optional[int] = None, line: Optional[int] = None, **props):
         super().__init__(row=row, line=line, **props)
-        self.ident = ident
         self.var = var
         self.val = val
 
     @property
-    def childs(self) -> tuple[IdentNode, VarType, ExprNode]:
-        return self.ident, self.var, self.val
+    def childs(self) -> Tuple[IdentNode, ExprNode]:
+        return self.var, self.val
 
     def __str__(self) -> str:
         return '='
@@ -351,52 +336,6 @@ class StmtListNode(StmtNode):
 
     def __str__(self) -> str:
         return '...'
-
-
-class FuncNode(StmtNode):
-    def __init__(self, return_type: FuncReturnTypeNode, name: IdentNode, func_vars: FuncVarsListNode,
-                 stmt_list: StmtListNode,
-                 row: Optional[int] = None, line: Optional[int] = None, **props):
-        super().__init__(row=row, line=line, **props)
-        self.return_type = return_type
-        self.name = name
-        self.func_vars = func_vars
-        self.stmt_list = stmt_list
-
-    @property
-    def childs(self) -> Tuple[Optional[FuncVarsListNode], StmtListNode]:
-        return ((self.func_vars,) if self.func_vars else tuple()) + (self.stmt_list,)
-
-    def __str__(self) -> str:
-        return '({0}) func {1}'.format(self.return_type, self.name)
-
-
-class ProgNode(StmtNode):
-    def __init__(self, *funcs_and_vars: StmtNode, row: Optional[int] = None, line: Optional[int] = None, **props):
-        super().__init__(row=row, line=line, **props)
-        self.funcs_and_vars = funcs_and_vars
-
-    @property
-    def childs(self) -> Tuple[StmtNode, ...]:
-        return self.funcs_and_vars
-
-    def __str__(self) -> str:
-        return 'prog'
-
-
-class DelegateNode(StmtNode):
-    def __init__(self, type_list: TypeListNode, return_type: FuncReturnTypeNode,
-                 row: Optional[int] = None, line: Optional[int] = None, **props):
-        super().__init__(row=row, line=line, **props)
-        self.type_list = type_list
-        self.return_type = return_type
-
-    @property
-    def childs(self) -> Tuple[TypeListNode, FuncReturnTypeNode]:
-        return self.type_list, self.return_type
-
-    def __str__(self) -> str:
-        return 'delegate'
 
 
 _empty = StmtListNode()
